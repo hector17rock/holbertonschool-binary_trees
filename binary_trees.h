@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/* ========== Your existing binary tree struct ========== */
+/* ========== My existing binary tree struct ========== */
 
 struct binary_tree_s
 {
@@ -57,9 +57,10 @@ typedef struct ascii_tree_info
 	int print_next;
 } ascii_tree_info_t;
 
-/* ========== Function Prototypes ========== */
+/* ========== My Function Prototypes ========== */
 binary_tree_t *binary_tree_node(binary_tree_t *parent, int value);
 void binary_tree_print(const binary_tree_t *tree);
+binary_tree_t *binary_tree_insert_left(binary_tree_t *parent, int value);
 
 #endif /* BINARY_TREES_H */
 

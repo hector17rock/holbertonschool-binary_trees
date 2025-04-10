@@ -51,10 +51,10 @@ struct asciinode_struct
  */
 typedef struct ascii_tree_info
 {
-	int lprofile[1000];
-	int rprofile[1000];
-	int gap;
-	int print_next;
+  int lprofile[1000];
+  int rprofile[1000];
+  int gap;
+  int print_next;
 } ascii_tree_info_t;
 
 /* ========== My Function Prototypes ========== */
@@ -83,6 +83,5 @@ void binary_tree_levelorder(const binary_tree_t *tree, void (*func)(int));
 int binary_tree_is_complete(const binary_tree_t *tree);
 binary_tree_t *binary_tree_rotate_right(binary_tree_t *tree);
 binary_tree_t *binary_tree_rotate_left(binary_tree_t *tree);
-
 #endif /* BINARY_TREES_H */
 

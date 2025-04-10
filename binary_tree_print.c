@@ -1,39 +1,33 @@
-#include "binary_trees.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "binary_tree_print.h"
 
-#define MAX_HEIGHT 1000
-#define INFINITY (1 << 20)
 /**
  * _min - Returns the minimum of two integers
  * @a: First integer
  * @b: Second integer
- *
- * Return: The smaller of the two integers
+ * Return: Minimum value
  */
-static int _min(int a, int b)
+int _min(int a, int b)
 {
 	return ((a < b) ? a : b);
 }
+
 /**
  * _max - Returns the maximum of two integers
  * @a: First integer
  * @b: Second integer
- *
- * Return: The larger of the two integers
+ * Return: Maximum value
  */
-static int _max(int a, int b)
+int _max(int a, int b)
 {
 	return ((a > b) ? a : b);
 }
+
 /**
- * build_ascii_tree_recursive - Recursively builds an ASCII tree
+ * build_ascii_tree_recursive - Builds an ASCII tree recursively
  * @t: Pointer to the binary tree node
- *
- * Return: Pointer to the created ASCII tree node
+ * Return: Pointer to the ASCII tree node
  */
-static asciinode *build_ascii_tree_recursive(const binary_tree_t *t)
+asciinode *build_ascii_tree_recursive(const binary_tree_t *t)
 {
 	asciinode *node;
 
@@ -52,19 +46,21 @@ static asciinode *build_ascii_tree_recursive(const binary_tree_t *t)
 	if (node->right != NULL)
 		node->right->parent_dir = 1;
 
-	sprintf(node->label, "%03d", t->n);
+	sprintf(node->label, "%d", t->n);
 	node->lablen = strlen(node->label);
 
 	return (node);
 }
+
 /**
- * free_ascii_tree - Frees the memory allocated for the ASCII tree
+ * free_ascii_tree - Frees the memory allocated for an ASCII tree
  * @node: Pointer to the ASCII tree node
  */
-static void free_ascii_tree(asciinode *node)
+void free_ascii_tree(asciinode *node)
 {
 	if (node == NULL)
 		return;
+
 	free_ascii_tree(node->left);
 	free_ascii_tree(node->right);
 	free(node);
@@ -77,8 +73,7 @@ static void free_ascii_tree(asciinode *node)
  * @y: Y coordinate
  * @info: Pointer to the ASCII tree info structure
  */
-static void compute_lprofile(asciinode *node, int x, int y,
-		ascii_tree_info_t *info)
+void compute_lprofile(asciinode *node, int x, int y, ascii_tree_info_t *info)
 {
 	int i, isleft;
 
@@ -86,8 +81,7 @@ static void compute_lprofile(asciinode *node, int x, int y,
 		return;
 
 	isleft = (node->parent_dir == -1);
-	info->lprofile[y] = _min(info->lprofile[y],
-			x - ((node->lablen - isleft) / 2));
+	info->lprofile[y] = _min(info->lprofile[y], x - ((node->lablen - isleft) / 2));
 
 	if (node->left != NULL)
 	{
@@ -95,14 +89,8 @@ static void compute_lprofile(asciinode *node, int x, int y,
 			info->lprofile[y + i] = _min(info->lprofile[y + i], x - i);
 	}
 
-	compute_lprofile(node->left,
-			x - node->edge_length - 1,
-			y + node->edge_length + 1,
-			info);
-	compute_lprofile(node->right,
-			x + node->edge_length + 1,
-			y + node->edge_length + 1,
-			info);
+	compute_lprofile(node->left, x - node->edge_length - 1, y + node->edge_length + 1, info);
+	compute_lprofile(node->right, x + node->edge_length + 1, y + node->edge_length + 1, info);
 }
 
 /**
@@ -112,8 +100,7 @@ static void compute_lprofile(asciinode *node, int x, int y,
  * @y: Y coordinate
  * @info: Pointer to the ASCII tree info structure
  */
-static void compute_rprofile(asciinode *node, int x, int y,
-		ascii_tree_info_t *info)
+void compute_rprofile(asciinode *node, int x, int y, ascii_tree_info_t *info)
 {
 	int i, notleft;
 
@@ -121,8 +108,7 @@ static void compute_rprofile(asciinode *node, int x, int y,
 		return;
 
 	notleft = (node->parent_dir != -1);
-	info->rprofile[y] = _max(info->rprofile[y],
-			x + ((node->lablen - notleft) / 2));
+	info->rprofile[y] = _max(info->rprofile[y], x + ((node->lablen - notleft) / 2));
 
 	if (node->right != NULL)
 	{
@@ -130,24 +116,18 @@ static void compute_rprofile(asciinode *node, int x, int y,
 			info->rprofile[y + i] = _max(info->rprofile[y + i], x + i);
 	}
 
-	compute_rprofile(node->left,
-			x - node->edge_length - 1,
-			y + node->edge_length + 1,
-			info);
-	compute_rprofile(node->right,
-			x + node->edge_length + 1,
-			y + node->edge_length + 1,
-			info);
+	compute_rprofile(node->left, x - node->edge_length - 1, y + node->edge_length + 1, info);
+	compute_rprofile(node->right, x + node->edge_length + 1, y + node->edge_length + 1, info);
 }
 
 /**
- * compute_edge_lengths - Computes the edge lengths for the ASCII tree
+ * compute_edge_lengths - Computes the edge lengths of the ASCII tree
  * @node: Pointer to the ASCII tree node
  * @info: Pointer to the ASCII tree info structure
  */
-static void compute_edge_lengths(asciinode *node, ascii_tree_info_t *info)
+void compute_edge_lengths(asciinode *node, ascii_tree_info_t *info)
 {
-	int i, hmin, delta;
+	int h, hmin, i, delta;
 
 	if (node == NULL)
 		return;
@@ -155,10 +135,9 @@ static void compute_edge_lengths(asciinode *node, ascii_tree_info_t *info)
 	compute_edge_lengths(node->left, info);
 	compute_edge_lengths(node->right, info);
 
+	/* First fill in the edge_length of node */
 	if (node->left == NULL && node->right == NULL)
-	{
 		node->edge_length = 0;
-	}
 	else
 	{
 		if (node->left != NULL)
@@ -188,10 +167,12 @@ static void compute_edge_lengths(asciinode *node, ascii_tree_info_t *info)
 		delta = 4;
 		for (i = 0; i < hmin; i++)
 		{
-			delta = _max(delta,
-					info->gap + 1 + info->rprofile[i] - info->lprofile[i]);
+			delta = _max(delta, info->gap + 1 +
+					info->rprofile[i] - info->lprofile[i]);
 		}
 
+		/* If the node has two children of height 1, then we allow the
+		 * two leaves to be within 1, instead of 2 */
 		if (((node->left != NULL && node->left->height == 1) ||
 					(node->right != NULL && node->right->height == 1)) &&
 				delta > 4)
@@ -200,15 +181,14 @@ static void compute_edge_lengths(asciinode *node, ascii_tree_info_t *info)
 		node->edge_length = ((delta + 1) / 2) - 1;
 	}
 
-	node->height = 1;
+	/* Compute height */
+	h = 1;
 	if (node->left != NULL)
-		node->height = _max(node->height,
-				node->left->height + node->edge_length + 1);
+		h = _max(node->left->height + node->edge_length + 1, h);
 	if (node->right != NULL)
-		node->height = _max(node->height,
-				node->right->height + node->edge_length + 1);
+		h = _max(node->right->height + node->edge_length + 1, h);
+	node->height = h;
 }
-
 /**
  * print_level - Prints a level of the ASCII tree
  * @node: Pointer to the ASCII tree node
@@ -216,7 +196,7 @@ static void compute_edge_lengths(asciinode *node, ascii_tree_info_t *info)
  * @level: Level to print
  * @info: Pointer to the ASCII tree info structure
  */
-static void print_level(asciinode *node, int x, int level,
+void print_level(asciinode *node, int x, int level,
 		ascii_tree_info_t *info)
 {
 	int i, isleft;
